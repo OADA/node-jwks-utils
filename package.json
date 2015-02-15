@@ -1,0 +1,28 @@
+{
+  "name": "jwks-utils",
+  "version": "0.0.1",
+  "description": "Adds (some) support for JWKs to node-jws",
+  "main": "jwks-utils.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/OADA/node-jwks-utils.git"
+  },
+  "keywords": [
+    "JWS",
+    "JWT",
+    "JWK",
+    "JWKs"
+  ],
+  "author": "Alex Layton <alex@layton.in> (http://alex.layton.in)",
+  "contributors": [
+    "Andrew Balmos <andrew@balmos.org>"
+  ],
+  "license": "Apache License 2.0",
+  "bugs": {
+    "url": "https://github.com/OADA/node-jwks-utils/issues"
+  },
+  "homepage": "https://github.com/OADA/node-jwks-utils",
+  "dependencies": {
+    "jws": "^0.2.6"
+  }
+}
