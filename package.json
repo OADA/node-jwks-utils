@@ -1,6 +1,6 @@
 {
   "name": "jwks-utils",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Adds (some) support for JWKs to node-jws",
   "main": "jwks-utils.js",
   "repository": {
