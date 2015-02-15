@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/OADA/node-jwks-utils",
   "dependencies": {
-    "jws": "^0.2.6"
+    "jws": "~2.0.0"
   }
 }
