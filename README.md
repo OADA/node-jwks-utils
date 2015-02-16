@@ -32,7 +32,7 @@ if(jwksUtils.isJWKset(jwks)) {
 }
 
 // Find a particilar JWK within a JWKs
-jar jwk1 = jwkUtils.findJWK('1234', jwks);
+var jwk1 = jwkUtils.findJWK('1234', jwks);
 
 // Find the JWK corsponding to a particular JWS (or JWT)
 var signature = getJWSFromSomwhere();
