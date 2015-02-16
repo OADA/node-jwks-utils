@@ -16,7 +16,7 @@ $ npm install jwks-utils
 Example
 -------
 ```javascript
-var jwksUtils = require('jws-jwk');
+var jwksUtils = require('jwks-utils');
 
 var jwk = { kid: '1234', kty: 'RSA', n: '12345...XYZ=', e: 'AQAB' };
 var jwks = { keys: [ jwk ] }
@@ -34,7 +34,7 @@ if(jwksUtils.isJWKset(jwks)) {
 // Find a particilar JWK within a JWKs
 jar jwk1 = jwkUtils.findJWK('1234', jwks);
 
-// FInd the JWK corsponding to a particular JWS (or JWT)
+// Find the JWK corsponding to a particular JWS (or JWT)
 var signature = getJWSFromSomwhere();
 var jwk2 = jwkUtils.jwkForSignature(signature, jwks);
 
