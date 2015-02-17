@@ -34,6 +34,10 @@ utils.isJWKset = function isJWKset(set) {
 utils.findJWK = function findJWK(kid, jwks) {
     var res;
 
+    if(kid === undefined) {
+        return undefined;
+    }
+
     jwks.keys.every(function(jwk) {
         if (utils.isJWK(jwk) && (jwk.kid === kid)) {
             res = jwk;
