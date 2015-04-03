@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/OADA/node-jwks-utils.svg?branch=master)](https://travis-ci.org/OADA/node-jwks-utils)
+[![Coverage Status](https://coveralls.io/repos/OADA/node-jwks-utils/badge.svg?branch=master)](https://coveralls.io/r/OADA/node-jwks-utils?branch=master)
 [![Dependency Status](https://david-dm.org/oada/node-jwks-utils.svg)](https://david-dm.org/oada/node-jwks-utils)
 [![License](http://img.shields.io/:license-Apache%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
