@@ -25,12 +25,12 @@ var jwks = { keys: [ jwk ] }
 
 // Detect a JWK object
 if(jwksUtils.isJWK(jwk)) {
-  // Do stuff with the JWk
+    // Do stuff with the JWk
 }
 
 // Detect a JWKs object
 if(jwksUtils.isJWKset(jwks)) {
-  // Do stuff with the JWKs
+    // Do stuff with the JWKs
 }
 
 // Find a particilar JWK within a JWKs
@@ -38,7 +38,11 @@ var jwk1 = jwkUtils.findJWK('1234', jwks);
 
 // Find the JWK corsponding to a particular JWS (or JWT)
 var signature = getJWSFromSomwhere();
-var jwk2 = jwkUtils.jwkForSignature(signature, jwks);
+jwkUtils.jwkForSignature(signature, function(err, jwk2) {
+    if (!err) {
+        // jwk2 is the corresponding JWK
+    }
+};
 
 ```
 
