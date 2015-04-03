@@ -16,6 +16,10 @@
 'use strict';
 
 var jws = require('jws');
+var request;
+try {
+    request = require('superagent');
+} catch (err) {}
 
 var utils = {};
 
@@ -27,14 +31,14 @@ utils.isJWK = function isJWK(key) {
 utils.isJWKset = function isJWKset(set) {
     var keys = set && set.keys;
 
-    return keys && (typeof keys.some === 'function') && keys.some(utils.isJWK);
+    return !!keys && typeof keys.some === 'function' && keys.some(utils.isJWK);
 };
 
 // Pick a JWK from a JWK set by its Key ID
 utils.findJWK = function findJWK(kid, jwks) {
     var res;
 
-    if(kid === undefined) {
+    if (!kid) {
         return undefined;
     }
 
@@ -49,18 +53,45 @@ utils.findJWK = function findJWK(kid, jwks) {
     return res;
 };
 
-utils.jwkForSignature = function jwkForSignature(signature, secretOrKey) {
+utils.jwkForSignature = function jwkForSignature(signature, hint, callback) {
+    var jose = jws.decode(signature).header;
     var jwk;
-
-    if (utils.isJWKset(secretOrKey)) {
-        var kid = jws.decode(signature).header.kid;
-
-        jwk = utils.findJWK(kid, secretOrKey);
-    } else if (utils.isJWK(secretOrKey)) {
-        jwk = secretOrKey;
+    if (typeof hint === 'function') {
+        callback = hint;
+        hint = undefined;
     }
 
-    return jwk;
+    if (jose.jwk) {
+        jwk = jose.jwk;
+    } else if (((jose.jku && jose.kid) || typeof hint === 'string') &&
+            request && callback) {
+        var req = request.get(jose.jku || hint);
+        if (typeof req.buffer === 'function') {
+            req.buffer();
+        }
+        return req.end(function recieveJWKSet(err, resp) {
+            var e = err || resp.error;
+            var jwks;
+            if (e) { return callback(e); }
+
+            try {
+                jwks = JSON.parse(resp.text);
+                if (!utils.isJWKset(jwks)) {
+                    throw new Error();
+                }
+            } catch (err) {
+                return callback(new Error('Could not parse retrieved JWK Set'));
+            }
+
+            return callback(null, utils.findJWK(jose.kid, jwks));
+        });
+    } else if (utils.isJWKset(hint)) {
+        jwk = utils.findJWK(jose.kid, hint);
+    } else if (utils.isJWK(hint)) {
+        jwk = hint;
+    }
+
+    return (callback && callback(null, jwk)) || jwk;
 };
 
 module.exports = utils;

@@ -14,5 +14,6 @@
     "sub": true,
     "freeze": true,
     "eqeqeq": true,
-    "expr": true
+    "expr": true,
+    "mocha": true
 }

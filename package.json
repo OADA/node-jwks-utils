@@ -3,26 +3,60 @@
   "version": "0.1.1",
   "description": "Utility methods for working with a JSON Web Key (JWK) and/or JSON Web Key Set (JWKs)",
   "main": "jwks-utils.js",
+  "scripts": {
+    "test": "mocha -w",
+    "browser-test": "./node_modules/karma/bin/karma start --single-run",
+    "cover": "istanbul cover _mocha",
+    "lint": "jshint --reporter node_modules/jshint-stylish/stylish.js .",
+    "style": "jscs .",
+    "clean": "rm -rf ./coverage"
+  },
+  "directories": {
+    "test": "test"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/OADA/node-jwks-utils.git"
+    "url": "https://github.com/OADA/node-jwks-utils.git"
   },
   "keywords": [
-    "JWS",
-    "JWT",
-    "JWK",
-    "JWKs"
+    "jws",
+    "jwt",
+    "jwk",
+    "jwks",
+    "oada"
   ],
-  "author": "Alex Layton <alex@layton.in> (http://alex.layton.in)",
-  "contributors": [
-    "Andrew Balmos <andrew@balmos.org>"
-  ],
-  "license": "Apache License 2.0",
+  "author": {
+    "name": "Alex Layton",
+    "email": "alex@layton.in",
+    "url": "http://alex.layton.in"
+  },
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/OADA/node-jwks-utils/issues"
   },
   "homepage": "https://github.com/OADA/node-jwks-utils",
+  "devDependencies": {
+    "brfs": "^1.4.0",
+    "browserify-istanbul": "^0.2.1",
+    "chai": "^2.2.0",
+    "cors": "^2.5.3",
+    "express": "^4.12.3",
+    "istanbul": "^0.3.13",
+    "jscs": "^1.12.0",
+    "jshint": "^2.6.3",
+    "jshint-stylish": "^1.0.1",
+    "karma": "^0.12.31",
+    "karma-browserify": "^4.1.2",
+    "karma-coverage": "0.2.6",
+    "karma-mocha": "^0.1.10",
+    "karma-mocha-reporter": "^1.0.2",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "mocha": "^2.2.1"
+  },
   "dependencies": {
-    "jws": "~2.0.0"
+    "jws": "^2.0.0"
+  },
+  "optionalDependencies": {
+    "superagent": "^1.1.0"
   }
 }
