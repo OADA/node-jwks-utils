@@ -15,7 +15,9 @@
 
 'use strict';
 
+var url = require('url');
 var jws = require('jws');
+var equal = require('deep-equal');
 var request;
 try {
     request = require('superagent');
@@ -53,22 +55,60 @@ utils.findJWK = function findJWK(kid, jwks) {
     return res;
 };
 
-utils.jwkForSignature = function jwkForSignature(signature, hint, callback) {
-    var jose = jws.decode(signature).header;
-    var jwk;
-    if (typeof hint === 'function') {
-        callback = hint;
-        hint = undefined;
+// Maybe move to a JWS library?
+// Supported headers: [kid, jwk, jku]
+utils.jwkForSignature = function jwkForSignature(sig, hint, options, callback) {
+    var jose = jws.decode(sig).header;
+    if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+    }
+    options = options || {};
+
+    switch (typeof hint) {
+    case 'boolean':
+        if (hint === false) {
+            // Lookup soley based on JOSE headers
+            if (jose.jku) {
+                return getJWK(jose.jku);
+            } else {
+                return callback(null, jose.jwk);
+            }
+        }
+        break;
+    case 'string':
+        return getJWK(hint);
+    case 'object':
+        if (utils.isJWKset(hint)) {
+            return check(null, utils.findJWK(jose.kid, hint));
+        } else if (utils.isJWK(hint) && jose.kid === hint.kid) {
+            return check(null, hint);
+        }
+        break;
     }
 
-    if (jose.jwk) {
-        jwk = jose.jwk;
-    } else if (((jose.jku && jose.kid) || typeof hint === 'string') &&
-            request && callback) {
-        var req = request.get(jose.jku || hint);
+    return callback(new Error('Invalid hint'));
+
+    function check(err, jwk) {
+        if (jose.jwk && !equal(jwk, jose.jwk, {strict: true})) {
+            err = err || new Error('JWK did not match jwk JOSE header');
+        }
+        callback(err, jwk);
+    }
+
+    // Retieve from a URI
+    function getJWK(uri) {
+        // MUST use HTTPS (not HTTP)
+        var u = url.parse(uri);
+        u.protocol = 'https';
+        uri = url.format(u);
+
+        var req = request.get(uri);
         if (typeof req.buffer === 'function') {
             req.buffer();
         }
+        req.timeout(options.timeout || 1000);
+
         return req.end(function recieveJWKSet(err, resp) {
             var e = err || resp.error;
             var jwks;
@@ -83,15 +123,9 @@ utils.jwkForSignature = function jwkForSignature(signature, hint, callback) {
                 return callback(new Error('Could not parse retrieved JWK Set'));
             }
 
-            return callback(null, utils.findJWK(jose.kid, jwks));
+            return check(null, utils.findJWK(jose.kid, jwks));
         });
-    } else if (utils.isJWKset(hint)) {
-        jwk = utils.findJWK(jose.kid, hint);
-    } else if (utils.isJWK(hint)) {
-        jwk = hint;
     }
-
-    return (callback && callback(null, jwk)) || jwk;
 };
 
 module.exports = utils;

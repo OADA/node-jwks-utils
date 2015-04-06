@@ -67,7 +67,14 @@ module.exports = function(config) {
 
         autoWatch: true,
 
-        browsers: ['PhantomJS'],
+        customLaunchers: {
+            PhantomJSignoreSSL: {
+                base: 'PhantomJS',
+                flags: ['--ignore-ssl-errors=yes']
+            }
+        },
+
+        browsers: ['PhantomJSignoreSSL'],
 
         singleRun: true
     });

@@ -20,6 +20,9 @@ var jwku = require('../');
 
 var jwkSet = require('./jwk_set.json');
 var jwk = jwkSet.keys[0];
+var jwk2 = jwkSet.keys[1];
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 describe('jwks-utils', function() {
     describe('#isJWK', function() {
@@ -70,7 +73,7 @@ describe('jwks-utils', function() {
                 secret: 'DEAD BEEF'
             });
 
-            jwku.jwkForSignature(sig, function(err, key) {
+            jwku.jwkForSignature(sig, false, function(err, key) {
                 expect(err).to.be.not.ok;
                 expect(key).to.deep.equal(jwk);
                 done();
@@ -81,17 +84,56 @@ describe('jwks-utils', function() {
             var sig = jws.sign({
                 header: {
                     alg: 'HS256',
-                    jku: 'http://localhost:3000/jwks_uri',
+                    jku: 'https://localhost:3000/jwks_uri',
                     kid: jwk.kid
                 },
                 payload: 'FOO BAR',
                 secret: 'DEAD BEEF'
             });
 
-            jwku.jwkForSignature(sig, function(err, key) {
+            jwku.jwkForSignature(sig, false, function(err, key) {
                 expect(err).to.be.not.ok;
                 expect(key).to.deep.equal(jwk);
                 done();
+            });
+        });
+
+        describe('whith both "jku" and "jwk" JOSE headers', function() {
+            it('should work when they agree', function(done) {
+                var sig = jws.sign({
+                    header: {
+                        alg: 'HS256',
+                        jku: 'https://localhost:3000/jwks_uri',
+                        kid: jwk.kid,
+                        jwk: jwk
+                    },
+                    payload: 'FOO BAR',
+                    secret: 'DEAD BEEF'
+                });
+
+                jwku.jwkForSignature(sig, false, function(err, key) {
+                    expect(err).to.be.not.ok;
+                    expect(key).to.deep.equal(jwk);
+                    done();
+                });
+            });
+
+            it('should error when they disagree', function(done) {
+                var sig = jws.sign({
+                    header: {
+                        alg: 'HS256',
+                        jku: 'https://localhost:3000/jwks_uri',
+                        kid: jwk.kid,
+                        jwk: jwk2
+                    },
+                    payload: 'FOO BAR',
+                    secret: 'DEAD BEEF'
+                });
+
+                jwku.jwkForSignature(sig, false, function(err, key) {
+                    expect(err).to.be.ok;
+                    done();
+                });
             });
         });
     });

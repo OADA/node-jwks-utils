@@ -15,7 +15,9 @@
 
 'use strict';
 
+var fs = require('fs');
 var express = require('express');
+var https = require('https');
 var cors = require('cors');
 
 var jwkSet = require('./jwk_set.json');
@@ -28,4 +30,12 @@ app.get('/jwks_uri', function(req, res) {
     res.json(jwkSet);
 });
 
-app.listen(3000);
+var options = {
+    key: fs.readFileSync('./test/server.key', 'utf8'),
+    cert: fs.readFileSync('./test/server.crt', 'utf8'),
+    ca: fs.readFileSync('./test/ca.crt', 'utf8'),
+    requestCrt: true,
+    rejectUnauthorized: false
+};
+
+https.createServer(options, app).listen(3000);
