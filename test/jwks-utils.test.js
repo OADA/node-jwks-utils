@@ -130,8 +130,10 @@ describe('jwks-utils', function() {
                     secret: 'DEAD BEEF'
                 });
 
-                jwku.jwkForSignature(sig, false, function(err, key) {
+                jwku.jwkForSignature(sig, false, function(err) {
                     expect(err).to.be.ok;
+                    expect(err.message)
+                        .to.equal('JWK did not match jwk JOSE header');
                     done();
                 });
             });
