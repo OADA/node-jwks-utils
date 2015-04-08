@@ -38,7 +38,7 @@ var jwk1 = jwkUtils.findJWK('1234', jwks);
 
 // Find the JWK corsponding to a particular JWS (or JWT)
 var signature = getJWSFromSomwhere();
-jwkUtils.jwkForSignature(signature, function(err, jwk2) {
+jwkUtils.jwkForSignature(signature, false, {timeout: 100}, function(err, jwk2) {
     if (!err) {
         // jwk2 is the corresponding JWK
     }
