@@ -38,7 +38,7 @@ app.get('/jwks_uri_invalid', function(req, res) {
     res.json({});
 });
 
-app.get('/jwks_uri_slow', function(req, res) {
+app.get('/jwks_uri_slow', function() {
     // Never responds, only test using timeouts on the request side
 });
 

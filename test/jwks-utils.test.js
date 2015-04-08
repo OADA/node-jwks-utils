@@ -164,7 +164,7 @@ describe('jwks-utils', function() {
                 secret: 'DEAD BEEF'
             });
 
-            jwku.jwkForSignature(sig, {}, function(err, key) {
+            jwku.jwkForSignature(sig, {}, function(err) {
                 expect(err).to.be.ok;
                 done();
             });
@@ -236,7 +236,7 @@ describe('jwks-utils', function() {
 
             jwku.jwkForSignature(sig, 'https://localhost:3000/jwks_uri_slow',
                 options,
-                function(err, key) {
+                function(err) {
                     expect(err).to.be.ok;
 
                     done();
