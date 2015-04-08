@@ -51,6 +51,10 @@ describe('jwks-utils', function() {
             expect(jwku.findJWK(kid, jwkSet)).to.deep.equal(jwk);
         });
 
+        it('shouldn\'t find a JWK for not matching "kid"', function() {
+            expect(jwku.findJWK('non-existent', jwkSet)).to.equal(undefined);
+        });
+
         it('should not find a JWK for undefined "kid"', function() {
             expect(jwku.findJWK(undefined, jwkSet)).to.be.not.ok;
         });
@@ -98,7 +102,148 @@ describe('jwks-utils', function() {
             });
         });
 
-        describe('whith both "jku" and "jwk" JOSE headers', function() {
+        it('should work with URI hint', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256',
+                    kid: jwk.kid
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, 'https://localhost:3000/jwks_uri',
+                function(err, key) {
+                expect(err).to.be.not.ok;
+                expect(key).to.deep.equal(jwk);
+                done();
+            });
+        });
+
+        it('should work with jwk hint', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256',
+                    kid: jwk.kid
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, jwk, function(err, key) {
+                expect(err).to.be.not.ok;
+                expect(key).to.deep.equal(jwk);
+                done();
+            });
+        });
+
+        it('should work with jwks hint', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256',
+                    kid: jwk.kid
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, jwkSet, function(err, key) {
+                expect(err).to.be.not.ok;
+                expect(key).to.deep.equal(jwk);
+                done();
+            });
+        });
+
+        it('should fail for invalid jwk/jwks hint', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256',
+                    kid: jwk.kid
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, {}, function(err, key) {
+                expect(err).to.be.ok;
+                done();
+            });
+        });
+
+        it('should fail for invalid hints', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256'
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, true, function(err) {
+                expect(err).to.be.ok;
+
+                done();
+            });
+        });
+
+        it('should fail when JWKS URI can not be parsed', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256'
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, 'https://localhost:3000/jwks_uri_broken',
+                function(err) {
+                    expect(err).to.be.ok;
+
+                    done();
+                });
+        });
+
+        it('should fail when JWKS URI hosts an invalid JWK', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256'
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            jwku.jwkForSignature(sig, 'https://localhost:3000/jwks_uri_invalid',
+                function(err) {
+                    expect(err).to.be.ok;
+
+                    done();
+                });
+        });
+
+        it('should timeout', function(done) {
+            var sig = jws.sign({
+                header: {
+                    alg: 'HS256',
+                    kid: jwk.kid
+                },
+                payload: 'FOO BAR',
+                secret: 'DEAD BEEF'
+            });
+
+            var options = {
+                timeout: 1
+            };
+
+            jwku.jwkForSignature(sig, 'https://localhost:3000/jwks_uri_slow',
+                options,
+                function(err, key) {
+                    expect(err).to.be.ok;
+
+                    done();
+                });
+        });
+
+        describe('with both "jku" and "jwk" JOSE headers', function() {
             it('should work when they agree', function(done) {
                 var sig = jws.sign({
                     header: {
@@ -138,5 +283,6 @@ describe('jwks-utils', function() {
                 });
             });
         });
+
     });
 });

@@ -30,6 +30,18 @@ app.get('/jwks_uri', function(req, res) {
     res.json(jwkSet);
 });
 
+app.get('/jwks_uri_broken', function(req, res) {
+    res.send('');
+});
+
+app.get('/jwks_uri_invalid', function(req, res) {
+    res.json({});
+});
+
+app.get('/jwks_uri_slow', function(req, res) {
+    // Never responds, only test using timeouts on the request side
+});
+
 var options = {
     key: fs.readFileSync('./test/server.key', 'utf8'),
     cert: fs.readFileSync('./test/server.crt', 'utf8'),
