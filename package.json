@@ -7,7 +7,7 @@
     "test": "mocha -w",
     "browser-test": "./node_modules/karma/bin/karma start --single-run",
     "cover": "istanbul cover _mocha",
-    "lint": "jshint --reporter node_modules/jshint-stylish/stylish.js .",
+    "lint": "jshint --reporter node_modules/jshint-stylish .",
     "style": "jscs .",
     "clean": "rm -rf ./coverage"
   },
