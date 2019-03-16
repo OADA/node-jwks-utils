@@ -42,6 +42,21 @@ app.get('/jwks_uri_slow', function() {
     // Never responds, only test using timeouts on the request side
 });
 
+// For testing cache failures:
+let isdead = false;
+app.get('/jwks_uri_dies_after_first_request', function(req,res) {
+  if (isdead) {
+    res.status(404).send('Not Found');
+    return;
+  }
+  isdead = true;
+  res.json(jwkSet);
+});
+app.get('/reset_jwks_uri_dies_after_first_request', function(req,res) {
+  isdead = false;
+  res.json({});
+});
+
 var options = {
     key: fs.readFileSync('./test/server.key', 'utf8'),
     cert: fs.readFileSync('./test/server.crt', 'utf8'),
