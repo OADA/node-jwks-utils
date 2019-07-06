@@ -220,8 +220,18 @@ utils.jwkForSignature = function jwkForSignature(sig, hint, options, callback) {
   // the functions above....
 
   // This hint thing is complicated....
+  // It was designed to make it simple to say something like:
+  // "hint: I looked up the JKU ot JWK on the signature, and it was from a trusted source." 
+  // (i.e. hint = truthy), 
+  // and it's truthy value is then either the JWKS (object) from the trusted source, 
+  //     or the jku (string) of the trusted source's jwks
+  // or 
+  // "hint: I looked at my trusted sources and this one doesn't have a jwk or jku that matches." 
+  // (i.e. hint === false)
+  // which means "just use the header on the signature because I have no outside reference that verifies it"
+  //
   // - If boolean false, use the jku from the jose header and if no jku then use jose's jwk
-  // - If boolean true, throw error
+  // - If boolean true, throw error (it should have been either an object or a string)
   // - If string, assume string is a jku uri, go get that URI and then check jose's jwk against it
   // - If object and looks like a jwks, look for jose's jwk in the set
   // - If object and looks like a jwk, compare that jwk with jose's jwk
