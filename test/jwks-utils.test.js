@@ -34,7 +34,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 describe('jwks-utils', function() {
 
-
   //-----------------------------------------------------------
   describe('#isJWK', function() {
     it('should return true for a JWK', function() {
@@ -291,4 +290,6 @@ describe('jwks-utils', function() {
     });
 
   });
+
+
 });

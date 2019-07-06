@@ -60,6 +60,8 @@ const putInCache = (uri,jwks,strbytes) => {
   while (cacheSize() + strbytes > cacheMaxSizeMB) {
     if (!cachePruneOldest()) break; // if pruneOldest fails, stop looping
   }
+
+  if (jwksCache[uri]) trace('Putting uri ',uri,' into cache with new timestamp, replacing previous entry')
   jwksCache[uri] = {
     timePutIntoCache: Date.now()/1000,
     jwks,
@@ -74,7 +76,7 @@ const cachePruneIfFailureTimeout = uri => {
     delete jwksCache[uri];
   }
 }
-const cacheHasURIWithStaleTimeout = uri => {
+const cacheHasURIThatIsNotStale = uri => {
   const now = Date.now() / 1000;
   return (jwksCache[uri] && (now - jwksCache[uri].timePutIntoCache) < cacheStaleTimeoutSec);
 }
@@ -82,6 +84,11 @@ const cacheHasURIWithStaleTimeout = uri => {
 
 //-------------------------------------------------
 // Primary exported module:
+
+// Exporting some cache functions for testing:
+utils.clearJWKsCache = function() { jwksCache = {}; }
+utils.getJWKsCache = function() { return jwksCache; }
+utils.cachePruneOldest = cachePruneOldest;
 
 
 // Decide if an object is a JWK
@@ -159,12 +166,14 @@ utils.jwkForSignature = function jwkForSignature(sig, hint, options, callback) {
     // Fire off the request here first, then immediately check cache before javascript event queue moves on.  
     // If it's there, then that "thread" of execution will call the callback instead of the one after 
     // the request finishes.  If it wasn't there, then the request's callback here will call it.
-    req.end(function recieveJWKSet(err, resp) {
+    trace('Sending out GET request for uri '+uri+', will check cache while it is waiting');
+    const promiseToWaitOnRequest = req.end(function recieveJWKSet(err, resp) {
       let e = err || resp.error;
       let jwks;
 
       // If there was no error, then we can go ahead and try to parse the body (which could result in an error)
       if (!e) {
+        trace('Finished retrieving uri ',uri,', had no error in the request, will now try to parse response.');
         try {
           jwks = JSON.parse(resp.text);
           if (!utils.isJWKset(jwks)) {
@@ -206,13 +215,19 @@ utils.jwkForSignature = function jwkForSignature(sig, hint, options, callback) {
 
     // Now, check if we already have the uri in the cache and 
     // if the kid is already in it's list of keys:
-    if (cacheHasURIWithStaleTimeout(uri)) {
+    trace('Checking cache for non-stale uri ', uri);
+    if (cacheHasURIThatIsNotStale(uri)) {
+      trace('Found uri ',uri,' in cache and it is not stale, returning it immediately');
       const jwk = utils.findJWK(jose.kid, jwksCache[uri].jwks);
       if (jwk) return checkJWKEqualsJoseJWK(null, jwk);
     }
+    trace('Did not find non-stale uri ',uri,' in cache, waiting on request to complete instead');
 
     // If we get here, then we did not have a valid, un-stale kid in the cache, so we need
-    // to wait on the request to call the callback instead (above)
+    // to wait on the request to call the callback instead (above).  If it fails above, then it
+    // will continue to use the stale URI until the 24-hour failure period.  The callback for the
+    // overall function will end up being called in the callback for the request.
+    return;
   }
 
 
