@@ -1,6 +1,6 @@
 {
   "name": "jwks-utils",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Utility methods for working with a JSON Web Key (JWK) and/or JSON Web Key Set (JWKs)",
   "main": "jwks-utils.js",
   "scripts": {
