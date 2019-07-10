@@ -30,7 +30,7 @@ var utils = {};
 
 //----------------------------------------------------------------------
 // Caching jwks requests/responses:
-const jwksCache = {};
+let jwksCache = {};
 const cacheStaleTimeoutSec = 3600; // 1 hour
 const cacheFailureTimeout = 3600*24; // 24 hours: how long to use cached value if network request fails
 const cacheMaxSizeMB = 20; // Maximum MB allowed in the jwks cache before pruning old ones
