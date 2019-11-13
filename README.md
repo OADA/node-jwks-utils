@@ -6,6 +6,8 @@
 node-jwks-utils
 ===============
 
+*THIS LIBRARY IS DEPRECATED. WE USE OADA-CERTS NOW INSTEAD.*
+
 A set of useful tools when working with [JSON Web Key (JWK)][JWK] and [JSON Web
 Key Set (JWKs)][JWKs].
 
